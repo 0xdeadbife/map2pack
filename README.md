@@ -4,6 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/0xdeadbife/map2pack/actions/workflows/build.yml"><img src="https://github.com/0xdeadbife/map2pack/actions/workflows/build.yml/badge.svg" alt="build"></a>
+  <a href="https://github.com/0xdeadbife/map2pack/releases/latest"><img src="https://img.shields.io/github/v/release/0xdeadbife/map2pack?color=success" alt="release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"></a>
 </p>
 
@@ -58,7 +59,8 @@ detail pane lists every file with its size.
 
 ### From a release
 
-Download `map2pack-<version>-all.jar` from the Releases page, then in Burp:
+Download `map2pack-<version>-all.jar` from the
+[Releases page](https://github.com/0xdeadbife/map2pack/releases), then in Burp:
 **Extensions -> Installed -> Add -> Type: Java** and select the jar.
 
 ### From source
