@@ -1,0 +1,19 @@
+# Gradle / Kotlin
+.gradle/
+.kotlin/
+build/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local
+local.properties
