@@ -469,14 +469,18 @@ class Map2PackTab(
         Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, null)
     }
 
+    /** Recoverable findings selected in the table, or every recoverable one when nothing is selected. */
+    private fun exportTargets(): List<Detection> {
+        val selected = findingsTable.selectedRows
+            .map { findingsTable.convertRowIndexToModel(it) }
+            .mapNotNull { detections.getOrNull(it) }
+        return (if (selected.isEmpty()) detections.toList() else selected).filter { it.recoverable }
+    }
+
     private fun exportAll() {
-        val d = current
-        if (d == null) {
-            JOptionPane.showMessageDialog(component, "Select a finding first.")
-            return
-        }
-        if (!d.recoverable) {
-            JOptionPane.showMessageDialog(component, "This finding has no recoverable sourcesContent.")
+        val targets = exportTargets()
+        if (targets.isEmpty()) {
+            JOptionPane.showMessageDialog(component, "No selected finding has recoverable sourcesContent.")
             return
         }
         val chooser = JFileChooser().apply {
@@ -486,28 +490,32 @@ class Map2PackTab(
         if (chooser.showDialog(component, "Select") != JFileChooser.APPROVE_OPTION) return
         val dest = chooser.selectedFile ?: return
 
-        val safeHost = d.host.replace(Regex("[^A-Za-z0-9._-]"), "_")
-        val baseDir = File(dest, "map2pack_${d.index}_$safeHost")
         var written = 0
         try {
-            for (i in d.sources.indices) {
-                val content = d.sourcesContent.getOrNull(i)
-                if (content.isNullOrEmpty()) continue
-                val outFile = File(baseDir, SourceMapAnalyzer.sanitizeSourcePath(d.sources[i]))
-                outFile.parentFile?.mkdirs()
-                outFile.writeText(content)
-                written++
+            for (d in targets) {
+                val safeHost = d.host.replace(Regex("[^A-Za-z0-9._-]"), "_")
+                val baseDir = File(dest, "map2pack_${d.index}_$safeHost")
+                for (i in d.sources.indices) {
+                    val content = d.sourcesContent.getOrNull(i)
+                    if (content.isNullOrEmpty()) continue
+                    val outFile = File(baseDir, SourceMapAnalyzer.sanitizeSourcePath(d.sources[i]))
+                    outFile.parentFile?.mkdirs()
+                    outFile.writeText(content)
+                    written++
+                }
             }
-            api.logging().logToOutput("Exported $written files to ${baseDir.absolutePath}")
+            api.logging().logToOutput(
+                "Exported $written files from ${targets.size} finding(s) to ${dest.absolutePath}"
+            )
             val choice = JOptionPane.showConfirmDialog(
                 component,
-                "Exported $written files to:\n${baseDir.absolutePath}\n\nOpen folder?",
+                "Exported $written files from ${targets.size} finding(s) to:\n${dest.absolutePath}\n\nOpen folder?",
                 "Export complete",
                 JOptionPane.YES_NO_OPTION
             )
-            if (choice == JOptionPane.YES_OPTION) openFolder(baseDir)
+            if (choice == JOptionPane.YES_OPTION) openFolder(dest)
         } catch (e: Exception) {
-            api.logging().logToError("Error exporting to ${baseDir.absolutePath}: ${e.message}")
+            api.logging().logToError("Error exporting to ${dest.absolutePath}: ${e.message}")
             JOptionPane.showMessageDialog(component, "Error exporting: ${e.message}")
         }
     }

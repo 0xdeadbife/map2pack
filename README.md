@@ -86,7 +86,9 @@ not work: it lacks the bundled dependencies. Load it in Burp as above.
    - **Open in editor** opens the selected file in your editor.
    - **Open all in editor** stages the whole tree to a temp folder and opens it.
    - **Copy path** copies the source path.
-5. **Export all sources...** writes the full reconstructed tree to a folder you pick.
+5. **Export all sources...** writes the full reconstructed tree to a folder you pick,
+   one `map2pack_<index>_<host>` directory per finding. It exports every finding
+   selected in the table (`Ctrl+A` for all), or all of them when nothing is selected.
 
 Select rows and press **Delete** (or **Delete selected**) to prune the table.
 
